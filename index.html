@@ -814,7 +814,7 @@ function updateStats() {
 }
 
 function filterCategory() {
-  const cat = catSelect.value;
+  const cat = document.getElementById('catFilter').value;
   const search = document.getElementById('search').value.toLowerCase();
   filtered = words.filter(w => {
     const catMatch = cat === 'all' || w.cat === cat;
