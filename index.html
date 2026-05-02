@@ -196,11 +196,21 @@
     color: #fff;
   }
   .card-nav .dontknow:hover { background: #b91c1c; }
-  .streak-badge {
-    font-weight: 600;
+  .problem-badge {
+    background: rgba(255,255,255,0.18);
     color: #fff;
+    border: 1px solid rgba(255,255,255,0.45);
+    border-radius: 8px;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
   }
-  .streak-badge:empty { display: none; }
+  .problem-badge:hover { background: rgba(255,255,255,0.3); }
+  .problem-badge.active { background: #fff; color: #ec2471; border-color: #fff; }
+  .problem-badge:empty { display: none; }
   .card-counter {
     text-align: center;
     font-size: 13px;
@@ -489,7 +499,7 @@
   <div class="progress-wrap">
     <div class="progress-info">
       <span id="progressText">Выучено: 0 / 963</span>
-      <span class="streak-badge" id="streakBadge"></span>
+      <button class="problem-badge" id="problemBadge" onclick="toggleProblemFilter()" title="Показать только проблемные слова"></button>
       <span><button class="reset-btn" onclick="resetProgress()">Сбросить</button></span>
     </div>
     <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
@@ -718,6 +728,7 @@ function bumpStat(w, key) {
   if (!stats[k]) stats[k] = { right: 0, wrong: 0 };
   stats[k][key]++;
   saveStats();
+  updateProblemBadge();
 }
 
 // ===== STREAK =====
@@ -759,15 +770,46 @@ function updateStreakUI() {
   el.textContent = streakData.current > 0 ? `🔥 ${streakData.current}` : '';
 }
 
+// ===== PROBLEM WORDS counter + filter =====
+let problemFilterOn = false;
+
+function isProblem(w) {
+  const s = stats[w.pl];
+  return !!s && (s.wrong || 0) > (s.right || 0);
+}
+
+function countProblems() {
+  return words.filter(isProblem).length;
+}
+
+function updateProblemBadge() {
+  const el = document.getElementById('problemBadge');
+  if (!el) return;
+  const n = countProblems();
+  el.textContent = n > 0 ? `Не знаю: ${n}` : '';
+  el.classList.toggle('active', problemFilterOn && n > 0);
+  if (problemFilterOn && n === 0) {
+    problemFilterOn = false;
+    filterCategory();
+  }
+}
+
+function toggleProblemFilter() {
+  problemFilterOn = !problemFilterOn;
+  filterCategory();
+  updateProblemBadge();
+}
+
 function resetProgress() {
-  if (!confirm('Сбросить прогресс и статистику? Серия дней (🔥) сохранится.')) return;
+  if (!confirm('Сбросить прогресс и статистику?')) return;
   learned.clear();
   stats = {};
+  problemFilterOn = false;
   saveLearned();
   saveStats();
   updateProgress();
-  if (mode === 'cards') showCard();
-  if (mode === 'list') renderList();
+  updateProblemBadge();
+  filterCategory();
 }
 
 function updateProgress() {
@@ -892,7 +934,9 @@ function filterCategory() {
   filtered = words.filter(w => {
     const catMatch = cat === 'all' || w.cat === cat;
     const searchMatch = !search || w.pl.toLowerCase().includes(search) || w.ru.toLowerCase().includes(search) || w.tr.toLowerCase().includes(search);
-    return catMatch && searchMatch;
+    if (!catMatch || !searchMatch) return false;
+    if (problemFilterOn && !isProblem(w)) return false;
+    return true;
   });
   cardIndex = 0;
   if (mode === 'cards') showCard();
@@ -1111,6 +1155,7 @@ function startApp() {
   updateStats();
   updateProgress();
   updateStreakUI();
+  updateProblemBadge();
 }
 
 init();
