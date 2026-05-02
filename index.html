@@ -415,7 +415,7 @@
   .celeb-msg .celeb-icon { font-size: 64px; margin-bottom: 12px; }
   .celeb-msg .celeb-count { font-size: 42px; font-weight: 800; color: #ec2471; }
   .celeb-msg .celeb-text { font-size: 18px; color: #64748b; margin-top: 8px; }
-  .celeb-msg .celeb-greek { font-size: 22px; color: #f06e9a; font-weight: 600; margin-top: 4px; }
+  .celeb-msg .celeb-polish { font-size: 22px; color: #f06e9a; font-weight: 600; margin-top: 4px; }
 
   /* Reset button */
   .reset-btn {
@@ -560,7 +560,7 @@
 
     <h3>Режимы обучения</h3>
     <ul>
-      <li><strong>Карточки</strong> — классический флип: греческое слово на лицевой стороне, перевод на обратной. Кнопка «Знаю» отмечает слово как выученное</li>
+      <li><strong>Карточки</strong> — классический флип: польское слово на лицевой стороне, перевод на обратной. Кнопка «Знаю» отмечает слово как выученное</li>
       <li><strong>Список</strong> — все слова с фильтрацией по теме и поиском. Нажмите на слово, чтобы увидеть перевод</li>
       <li><strong>Тест</strong> — викторина с 4 вариантами ответа. Правильный ответ автоматически помечает слово как выученное</li>
     </ul>
@@ -658,13 +658,13 @@ function saveLearned() {
     const data = JSON.stringify([...learned]);
     // Our data should never exceed 100KB (963 words * ~30 chars max = ~30KB)
     if (data.length * 2 > 100 * 1024) {
-      console.warn('Greek A2: localStorage data too large, skipping save');
+      console.warn('Polish A2: localStorage data too large, skipping save');
       return;
     }
     localStorage.setItem(STORAGE_KEY, data);
   } catch (e) {
     // QuotaExceededError — localStorage is full
-    console.warn('Greek A2: localStorage full', e);
+    console.warn('Polish A2: localStorage full', e);
     alert('localStorage переполнен. Прогресс не может быть сохранён. Попробуйте очистить данные других сайтов.');
   }
 }
@@ -707,22 +707,22 @@ function updateProgress() {
 
 // ===== CELEBRATION =====
 const milestones = [
-  { at: 10, icon: "🎉", text: "Отличное начало!", greek: "Μπράβο!" },
-  { at: 20, icon: "⭐", text: "Продолжай!", greek: "Συνέχισε!" },
-  { at: 30, icon: "🔥", text: "Ты в ударе!", greek: "Είσαι φωτιά!" },
-  { at: 50, icon: "🏆", text: "Полсотни!", greek: "Πενήντα λέξεις!" },
-  { at: 75, icon: "💪", text: "Сильно!", greek: "Δυνατά!" },
-  { at: 100, icon: "🎊", text: "Сотня слов!", greek: "Εκατό λέξεις!" },
-  { at: 150, icon: "🚀", text: "Набираешь обороты!", greek: "Πάμε δυνατά!" },
-  { at: 200, icon: "🌟", text: "200 слов — серьёзно!", greek: "Τέλεια!" },
-  { at: 300, icon: "🏅", text: "Треть пути!", greek: "Τριακόσιες!" },
-  { at: 500, icon: "👑", text: "Половина словаря!", greek: "Μισές!" },
-  { at: 750, icon: "🎯", text: "Почти всё!", greek: "Σχεδόν όλες!" },
-  { at: 960, icon: "🏆🎉🎊", text: "ВСЕ СЛОВА ВЫУЧЕНЫ!", greek: "Udało się!" },
+  { at: 10, icon: "🎉", text: "Отличное начало!", polish: "Brawo!" },
+  { at: 20, icon: "⭐", text: "Продолжай!", polish: "Kontynuuj!" },
+  { at: 30, icon: "🔥", text: "Ты в ударе!", polish: "Jesteś w formie!" },
+  { at: 50, icon: "🏆", text: "Полсотни!", polish: "Pięćdziesiąt słów!" },
+  { at: 75, icon: "💪", text: "Сильно!", polish: "Świetnie!" },
+  { at: 100, icon: "🎊", text: "Сотня слов!", polish: "Sto słów!" },
+  { at: 150, icon: "🚀", text: "Набираешь обороты!", polish: "Tak trzymaj!" },
+  { at: 200, icon: "🌟", text: "200 слов — серьёзно!", polish: "Doskonale!" },
+  { at: 300, icon: "🏅", text: "Треть пути!", polish: "Trzysta słów!" },
+  { at: 500, icon: "👑", text: "Половина словаря!", polish: "Połowa!" },
+  { at: 750, icon: "🎯", text: "Почти всё!", polish: "Prawie wszystko!" },
+  { at: 960, icon: "🏆🎉🎊", text: "ВСЕ СЛОВА ВЫУЧЕНЫ!", polish: "Udało się!" },
 ];
 
 function celebrate(count) {
-  const ms = milestones.find(m => m.at === count) || { icon: "🎉", text: `${count} слов!`, greek: "Μπράβο!" };
+  const ms = milestones.find(m => m.at === count) || { icon: "🎉", text: `${count} слов!`, polish: "Brawo!" };
 
   const overlay = document.createElement('div');
   overlay.className = 'celebration';
@@ -732,7 +732,7 @@ function celebrate(count) {
       <div class="celeb-icon">${esc(ms.icon)}</div>
       <div class="celeb-count">${parseInt(count, 10)} слов</div>
       <div class="celeb-text">${esc(ms.text)}</div>
-      <div class="celeb-greek">${esc(ms.polish)}</div>
+      <div class="celeb-polish">${esc(ms.polish)}</div>
     </div>
   `;
   document.body.appendChild(overlay);
