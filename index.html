@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Referrer-Policy" content="no-referrer">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+<title>Polish A2 Vocabulary</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23DC143C'/%3E%3Crect width='32' height='16' rx='6' ry='6' fill='white'/%3E%3Crect y='16' width='32' height='16' rx='0' fill='%23DC143C'/%3E%3Crect width='32' height='6' rx='6' ry='6' fill='white'/%3E%3C/svg%3E">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #f0f4f8;
+    color: #1a1a2e;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #b91c1c, #dc2626);
+    color: #fff;
+    padding: 14px 24px 8px;
+    text-align: center;
+  }
+  .header h1 { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
+  .header p { font-size: 13px; opacity: 0.85; }
+
+  .controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 24px;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .controls-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    width: 100%;
+    max-width: 500px;
+  }
+  .controls button, .controls select {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: #334155;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .controls select {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  .controls-row input {
+    flex: 1;
+    min-width: 0;
+  }
+  .controls button:hover { background: #f1f5f9; }
+  .controls button.active {
+    background: #b91c1c;
+    color: #fff;
+    border-color: #b91c1c;
+  }
+  .controls input {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 13px;
+    width: 200px;
+    outline: none;
+  }
+  .controls input:focus { border-color: #dc2626; }
+
+  .stats {
+    text-align: center;
+    padding: 4px;
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  /* Card mode */
+  .card-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px 24px;
+  }
+  .card {
+    width: 420px;
+    max-width: 90vw;
+    height: 260px;
+    perspective: 1000px;
+    cursor: pointer;
+  }
+  .card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+  }
+  .card.flipped .card-inner { transform: rotateY(180deg); }
+  .card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .card-front {
+    background: #fff;
+  }
+  .card-back {
+    background: linear-gradient(135deg, #b91c1c, #dc2626);
+    color: #fff;
+    transform: rotateY(180deg);
+  }
+  .card-polish {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #b91c1c;
+  }
+  .card-translit {
+    font-size: 16px;
+    color: #64748b;
+    font-style: italic;
+  }
+  .card-back .card-russian {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .card-back .card-category {
+    font-size: 13px;
+    opacity: 0.7;
+    background: rgba(255,255,255,0.15);
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+  .card-nav {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    padding: 0 24px 12px;
+  }
+  .card-nav button {
+    padding: 10px 24px;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .card-nav .prev { background: #e2e8f0; color: #334155; }
+  .card-nav .prev:hover { background: #cbd5e1; }
+  .card-nav .next { background: #b91c1c; color: #fff; }
+  .card-nav .next:hover { background: #991b1b; }
+  .card-nav .know {
+    background: #16a34a;
+    color: #fff;
+  }
+  .card-nav .know:hover { background: #15803d; }
+  .card-counter {
+    text-align: center;
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 6px;
+  }
+
+  /* List mode */
+  .word-list {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 16px 24px 40px;
+  }
+  .word-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    transition: transform 0.15s;
+    cursor: pointer;
+  }
+  .word-item:hover { transform: translateX(4px); }
+  .word-item .polish {
+    font-size: 20px;
+    font-weight: 700;
+    color: #b91c1c;
+    min-width: 200px;
+  }
+  .word-item .translit {
+    font-size: 14px;
+    color: #94a3b8;
+    font-style: italic;
+    min-width: 160px;
+  }
+  .word-item .russian {
+    font-size: 16px;
+    color: #334155;
+    flex: 1;
+  }
+  .word-item .cat {
+    font-size: 11px;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .word-item .russian.hidden { color: transparent; background: #e2e8f0; border-radius: 4px; user-select: none; }
+
+  /* Quiz mode */
+  .quiz-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 24px;
+  }
+  .quiz-word {
+    font-size: 48px;
+    font-weight: 700;
+    color: #b91c1c;
+    margin-bottom: 8px;
+  }
+  .quiz-translit {
+    font-size: 18px;
+    color: #94a3b8;
+    font-style: italic;
+    margin-bottom: 32px;
+  }
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 420px;
+    max-width: 90vw;
+  }
+  .quiz-option {
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    background: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .quiz-option:hover { border-color: #dc2626; background: #f0f9ff; }
+  .quiz-option.correct { border-color: #16a34a; background: #f0fdf4; color: #16a34a; font-weight: 600; }
+  .quiz-option.wrong { border-color: #dc2626; background: #fef2f2; color: #dc2626; }
+  .quiz-score {
+    margin-top: 24px;
+    font-size: 15px;
+    color: #64748b;
+  }
+
+  .hidden { display: none !important; }
+
+  /* About section */
+  .about {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+    line-height: 1.7;
+    font-size: 14px;
+    color: #334155;
+  }
+  .about h2 {
+    font-size: 20px;
+    color: #b91c1c;
+    margin-bottom: 12px;
+  }
+  .about h3 {
+    font-size: 15px;
+    color: #b91c1c;
+    margin: 16px 0 6px;
+  }
+  .about p { margin-bottom: 10px; }
+  .about ul {
+    padding-left: 20px;
+    margin-bottom: 10px;
+  }
+  .about li { margin-bottom: 4px; }
+  .about code {
+    background: #f1f5f9;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: 'SF Mono', monospace;
+  }
+  .about .tech-badge {
+    display: inline-block;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 12px;
+    color: #475569;
+    margin: 2px 4px 2px 0;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    padding: 6px 24px 4px;
+    background: linear-gradient(135deg, #b91c1c, #dc2626);
+  }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 4px;
+  }
+  .progress-bar {
+    width: 100%;
+    height: 5px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4ade80, #22d3ee);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  /* Learned indicator in cards */
+  .card-learned-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #16a34a;
+    color: #fff;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  /* Learned indicator in list */
+  .word-item.learned {
+    border-left: 4px solid #16a34a;
+  }
+  .word-item .learned-check {
+    color: #16a34a;
+    font-size: 18px;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+
+  /* Celebration overlay */
+  .celebration {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    animation: celebFadeIn 0.3s ease;
+  }
+  @keyframes celebFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .celebration canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .celebration .celeb-msg {
+    position: relative;
+    z-index: 1;
+    background: #fff;
+    border-radius: 24px;
+    padding: 40px 48px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    animation: celebPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes celebPop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .celeb-msg .celeb-icon { font-size: 64px; margin-bottom: 12px; }
+  .celeb-msg .celeb-count { font-size: 42px; font-weight: 800; color: #b91c1c; }
+  .celeb-msg .celeb-text { font-size: 18px; color: #64748b; margin-top: 8px; }
+  .celeb-msg .celeb-greek { font-size: 22px; color: #dc2626; font-weight: 600; margin-top: 4px; }
+
+  /* Reset button */
+  .reset-btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.7);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .reset-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+  @media (max-width: 768px) {
+    .header { padding: 20px 16px 16px; }
+    .header h1 { font-size: 22px; }
+    .progress-wrap { padding: 10px 16px 4px; }
+    .controls { padding: 8px 10px; gap: 6px; }
+    .controls-row { gap: 6px; }
+    .controls button, .controls select { padding: 6px 10px; font-size: 12px; }
+    .stats { font-size: 12px; }
+    .card-container { padding: 20px 12px; min-height: 320px; }
+    .card { height: 260px; }
+    .card-polish { font-size: 32px; }
+    .card-translit { font-size: 15px; }
+    .card-back .card-russian { font-size: 24px; }
+    .card-nav { gap: 8px; flex-wrap: wrap; justify-content: center; padding: 0 12px 20px; }
+    .card-nav button { padding: 10px 18px; font-size: 14px; }
+    .messages { padding: 16px 12px; }
+    .word-list { padding: 12px 12px 40px; }
+    .word-item { flex-wrap: wrap; gap: 4px; padding: 12px 14px; }
+    .word-item .polish { min-width: auto; flex: 1 1 100%; font-size: 18px; }
+    .word-item .translit { min-width: auto; font-size: 13px; }
+    .word-item .russian { font-size: 14px; }
+    .quiz-word { font-size: 36px; }
+    .quiz-translit { font-size: 16px; margin-bottom: 24px; }
+    .quiz-options { grid-template-columns: 1fr; width: 100%; }
+    .quiz-option { padding: 14px; font-size: 15px; }
+    .celeb-msg { padding: 28px 24px; margin: 0 16px; }
+    .celeb-msg .celeb-count { font-size: 32px; }
+    .celeb-msg .celeb-icon { font-size: 48px; }
+  }
+
+  @media (max-width: 380px) {
+    .header h1 { font-size: 19px; }
+    .controls button, .controls select { padding: 5px 8px; font-size: 11px; }
+    .card { height: 230px; }
+    .card-polish { font-size: 26px; }
+    .card-back .card-russian { font-size: 20px; }
+    .card-nav button { padding: 9px 14px; font-size: 13px; }
+    .quiz-word { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Polski A2</h1>
+  <p>Польские слова уровня A2 — учи, повторяй, проверяй</p>
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span id="progressText">Выучено: 0 / 963</span>
+      <span><button class="reset-btn" onclick="resetProgress()">Сбросить</button></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="controls-row">
+    <button class="active" onclick="setMode('cards')" id="btn-cards">Карточки</button>
+    <button onclick="setMode('list')" id="btn-list">Список</button>
+    <button onclick="setMode('quiz')" id="btn-quiz">Тест</button>
+    <button onclick="setMode('about')" id="btn-about">О проекте</button>
+  </div>
+  <div class="controls-row">
+    <select id="catFilter" onchange="filterCategory()">
+      <option value="all">Все темы</option>
+    </select>
+    <input type="text" id="search" placeholder="Поиск..." oninput="filterSearch()">
+    <button onclick="shuffle()">Перемешать</button>
+  </div>
+</div>
+
+<div class="stats" id="stats"></div>
+
+<!-- Cards -->
+<div id="cards-mode">
+  <div class="card-counter" id="cardCounter"></div>
+  <div class="card-container">
+    <div class="card" id="card" onclick="flipCard()">
+      <div class="card-inner">
+        <div class="card-front">
+          <div class="card-polish" id="cPolish"></div>
+          <div class="card-translit" id="cTranslit"></div>
+        </div>
+        <div class="card-back">
+          <div class="card-russian" id="cRussian"></div>
+          <div class="card-category" id="cCat"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-nav">
+    <button class="prev" onclick="prevCard()">Назад</button>
+    <button class="next" onclick="nextCard()">Далее</button>
+    <button class="know" onclick="markWord(true)">Знаю</button>
+  </div>
+</div>
+
+<!-- List -->
+<div id="list-mode" class="hidden">
+  <div class="word-list" id="wordList"></div>
+</div>
+
+<!-- Quiz -->
+<div id="quiz-mode" class="hidden">
+  <div class="quiz-container">
+    <div class="quiz-word" id="qWord"></div>
+    <div class="quiz-translit" id="qTranslit"></div>
+    <div class="quiz-options" id="qOptions"></div>
+    <div class="quiz-score" id="qScore"></div>
+  </div>
+</div>
+
+<!-- About -->
+<div id="about-mode" class="hidden">
+  <div class="about">
+    <h2>О проекте</h2>
+    <p>Бесплатный тренажёр для подготовки к экзамену по польскому языку уровня A2. Словарь содержит 960 слов с переводом на русский и транслитерацией произношения.</p>
+
+    <h3>Откуда слова</h3>
+    <p>Словарь составлен на основе частотных списков, используемых в экзаменах на сертификат A2 по польскому языку. Слова отобраны по следующим критериям:</p>
+    <ul>
+      <li>Частота появления в экзаменационных материалах A2</li>
+      <li>Покрытие всех обязательных тем: еда, дом, город, транспорт, здоровье, работа, учёба, путешествия и др.</li>
+      <li>Экзаменационная лексика: официальные документы, вывески, описание внешности, предлоги, местоимения</li>
+      <li>167 глаголов — от базовых (być, mieć, robić) до ситуативных (zamawiać, przeprowadzać się, rejestrować się)</li>
+    </ul>
+    <p>Слова разбиты на 26 тематических категорий для удобной навигации и целенаправленного изучения.</p>
+
+    <h3>Режимы обучения</h3>
+    <ul>
+      <li><strong>Карточки</strong> — классический флип: греческое слово на лицевой стороне, перевод на обратной. Кнопка «Знаю» отмечает слово как выученное</li>
+      <li><strong>Список</strong> — все слова с фильтрацией по теме и поиском. Нажмите на слово, чтобы увидеть перевод</li>
+      <li><strong>Тест</strong> — викторина с 4 вариантами ответа. Правильный ответ автоматически помечает слово как выученное</li>
+    </ul>
+
+    <h3>Технические решения</h3>
+    <p>
+      <span class="tech-badge">HTML</span>
+      <span class="tech-badge">CSS</span>
+      <span class="tech-badge">JavaScript</span>
+      <span class="tech-badge">GitHub Pages</span>
+    </p>
+    <ul>
+      <li><strong>Без зависимостей</strong> — один HTML-файл + JSON со словами, никаких фреймворков и внешних библиотек</li>
+      <li><strong>Словарь в JSON</strong> — слова хранятся в отдельном файле <code>words.json</code>, загружаются через <code>fetch</code> при старте</li>
+      <li><strong>Прогресс в localStorage</strong> — выученные слова сохраняются локально в браузере и переживают перезагрузку</li>
+      <li><strong>Валидация данных</strong> — при загрузке прогресса проверяется тип, длина и существование слов в словаре</li>
+      <li><strong>Защита от переполнения</strong> — лимит 100KB на данные приложения, обработка <code>QuotaExceededError</code></li>
+      <li><strong>Content Security Policy</strong> — ограничение источников скриптов, стилей и подключений через мета-тег CSP</li>
+      <li><strong>XSS-защита</strong> — все данные из словаря проходят через санитизацию перед вставкой в DOM</li>
+      <li><strong>Адаптивный дизайн</strong> — медиа-запросы для планшетов (768px) и телефонов (380px)</li>
+      <li><strong>Анимации</strong> — конфетти на canvas при каждых 10 выученных словах</li>
+      <li><strong>Хостинг</strong> — GitHub Pages, статический сайт без сервера</li>
+    </ul>
+
+    <h3>Исходный код</h3>
+    <p>Проект с открытым кодом: <a href="https://github.com/polish-words/polish-words.github.io" style="color:#dc2626">github.com/polish-words/polish-words.github.io</a></p>
+  </div>
+</div>
+
+<script>
+let words = [];
+
+async function init() {
+  try {
+    const resp = await fetch('words.json');
+    if (!resp.ok) throw new Error('Failed to load words.json');
+    words = await resp.json();
+  } catch (e) {
+    document.body.innerHTML = '<div style="padding:40px;text-align:center;color:#c00;font-size:18px;">Ошибка загрузки словаря. Проверьте что файл words.json доступен.</div>';
+    return;
+  }
+
+  // Validate data
+  if (!Array.isArray(words) || words.length === 0 || !words[0].gr) {
+    document.body.innerHTML = '<div style="padding:40px;text-align:center;color:#c00;font-size:18px;">Неверный формат словаря.</div>';
+    return;
+  }
+
+  startApp();
+}
+
+let filtered = [];
+let cardIndex = 0;
+let mode = 'cards';
+let quizScore = { correct: 0, total: 0 };
+let hideTranslation = true;
+// ===== SECURITY: sanitize HTML =====
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ===== PROGRESS (localStorage with safety) =====
+const STORAGE_KEY = 'polish_a2_learned';
+let learned = new Set();
+
+// Safe localStorage wrapper
+function storageAvailable() {
+  try {
+    const t = '__test__';
+    localStorage.setItem(t, t);
+    localStorage.removeItem(t);
+    return true;
+  } catch { return false; }
+}
+
+function getStorageSize() {
+  if (!storageAvailable()) return { used: 0, ourApp: 0 };
+  let total = 0;
+  let ourApp = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    const val = localStorage.getItem(key);
+    const size = (key.length + val.length) * 2; // UTF-16
+    total += size;
+    if (key === STORAGE_KEY) ourApp = size;
+  }
+  return { used: total, ourApp };
+}
+
+function saveLearned() {
+  if (!storageAvailable()) return;
+  try {
+    const data = JSON.stringify([...learned]);
+    // Our data should never exceed 100KB (963 words * ~30 chars max = ~30KB)
+    if (data.length * 2 > 100 * 1024) {
+      console.warn('Greek A2: localStorage data too large, skipping save');
+      return;
+    }
+    localStorage.setItem(STORAGE_KEY, data);
+  } catch (e) {
+    // QuotaExceededError — localStorage is full
+    console.warn('Greek A2: localStorage full', e);
+    alert('localStorage переполнен. Прогресс не может быть сохранён. Попробуйте очистить данные других сайтов.');
+  }
+}
+
+function isLearned(w) { return learned.has(w.pl); }
+
+function learnWord(w) {
+  if (learned.has(w.pl)) return;
+  learned.add(w.pl);
+  saveLearned();
+  updateProgress();
+  // Check milestone every 10
+  if (learned.size % 10 === 0) {
+    celebrate(learned.size);
+  }
+}
+
+function unlearnWord(w) {
+  learned.delete(w.pl);
+  saveLearned();
+  updateProgress();
+}
+
+function resetProgress() {
+  if (!confirm('Сбросить весь прогресс? Все выученные слова будут обнулены.')) return;
+  learned.clear();
+  saveLearned();
+  updateProgress();
+  if (mode === 'cards') showCard();
+  if (mode === 'list') renderList();
+}
+
+function updateProgress() {
+  const total = words.length;
+  const count = learned.size;
+  const pct = total ? (count / total * 100) : 0;
+  document.getElementById('progressText').textContent = `Выучено: ${count} / ${total}`;
+  document.getElementById('progressFill').style.width = pct.toFixed(1) + '%';
+}
+
+// ===== CELEBRATION =====
+const milestones = [
+  { at: 10, icon: "🎉", text: "Отличное начало!", greek: "Μπράβο!" },
+  { at: 20, icon: "⭐", text: "Продолжай!", greek: "Συνέχισε!" },
+  { at: 30, icon: "🔥", text: "Ты в ударе!", greek: "Είσαι φωτιά!" },
+  { at: 50, icon: "🏆", text: "Полсотни!", greek: "Πενήντα λέξεις!" },
+  { at: 75, icon: "💪", text: "Сильно!", greek: "Δυνατά!" },
+  { at: 100, icon: "🎊", text: "Сотня слов!", greek: "Εκατό λέξεις!" },
+  { at: 150, icon: "🚀", text: "Набираешь обороты!", greek: "Πάμε δυνατά!" },
+  { at: 200, icon: "🌟", text: "200 слов — серьёзно!", greek: "Τέλεια!" },
+  { at: 300, icon: "🏅", text: "Треть пути!", greek: "Τριακόσιες!" },
+  { at: 500, icon: "👑", text: "Половина словаря!", greek: "Μισές!" },
+  { at: 750, icon: "🎯", text: "Почти всё!", greek: "Σχεδόν όλες!" },
+  { at: 960, icon: "🏆🎉🎊", text: "ВСЕ СЛОВА ВЫУЧЕНЫ!", greek: "Udało się!" },
+];
+
+function celebrate(count) {
+  const ms = milestones.find(m => m.at === count) || { icon: "🎉", text: `${count} слов!`, greek: "Μπράβο!" };
+
+  const overlay = document.createElement('div');
+  overlay.className = 'celebration';
+  overlay.innerHTML = `
+    <canvas id="confettiCanvas"></canvas>
+    <div class="celeb-msg">
+      <div class="celeb-icon">${esc(ms.icon)}</div>
+      <div class="celeb-count">${parseInt(count, 10)} слов</div>
+      <div class="celeb-text">${esc(ms.text)}</div>
+      <div class="celeb-greek">${esc(ms.polish)}</div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Confetti
+  const canvas = document.getElementById('confettiCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const particles = [];
+  const colors = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff6bff','#ff9f43','#54a0ff','#5f27cd'];
+  for (let i = 0; i < 150; i++) {
+    particles.push({
+      x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+      y: canvas.height / 2,
+      vx: (Math.random() - 0.5) * 20,
+      vy: Math.random() * -18 - 5,
+      size: Math.random() * 8 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 15,
+      gravity: 0.4,
+      life: 1,
+    });
+  }
+
+  let frame = 0;
+  function animateConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.vy += p.gravity;
+      p.y += p.vy;
+      p.vx *= 0.98;
+      p.rotation += p.rotSpeed;
+      p.life -= 0.008;
+      if (p.life <= 0) return;
+      alive = true;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation * Math.PI / 180);
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+      ctx.restore();
+    });
+    frame++;
+    if (alive && frame < 180) requestAnimationFrame(animateConfetti);
+  }
+  animateConfetti();
+
+  setTimeout(() => {
+    overlay.style.transition = 'opacity 0.5s';
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.remove(), 500);
+  }, 3000);
+}
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + m)?.classList.add('active');
+  document.getElementById('cards-mode').classList.toggle('hidden', m !== 'cards');
+  document.getElementById('list-mode').classList.toggle('hidden', m !== 'list');
+  document.getElementById('quiz-mode').classList.toggle('hidden', m !== 'quiz');
+  document.getElementById('about-mode').classList.toggle('hidden', m !== 'about');
+  if (m === 'cards') showCard();
+  if (m === 'list') renderList();
+  if (m === 'quiz') nextQuiz();
+  if (m !== 'about') updateStats();
+  document.getElementById('stats').classList.toggle('hidden', m === 'about');
+}
+
+function updateStats() {
+  const learnedInFilter = filtered.filter(w => isLearned(w)).length;
+  document.getElementById('stats').textContent = `Показано: ${filtered.length} из ${words.length} | Выучено в этой теме: ${learnedInFilter}`;
+}
+
+function filterCategory() {
+  const cat = catSelect.value;
+  const search = document.getElementById('search').value.toLowerCase();
+  filtered = words.filter(w => {
+    const catMatch = cat === 'all' || w.cat === cat;
+    const searchMatch = !search || w.pl.toLowerCase().includes(search) || w.ru.toLowerCase().includes(search) || w.tr.toLowerCase().includes(search);
+    return catMatch && searchMatch;
+  });
+  cardIndex = 0;
+  if (mode === 'cards') showCard();
+  if (mode === 'list') renderList();
+  if (mode === 'quiz') nextQuiz();
+  updateStats();
+}
+
+function filterSearch() { filterCategory(); }
+
+function shuffle() {
+  for (let i = filtered.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+  }
+  cardIndex = 0;
+  if (mode === 'cards') showCard();
+  if (mode === 'list') renderList();
+  if (mode === 'quiz') nextQuiz();
+}
+
+// ===== CARDS =====
+function showCard() {
+  if (!filtered.length) return;
+  const w = filtered[cardIndex];
+  document.getElementById('cPolish').textContent = w.pl;
+  document.getElementById('cTranslit').textContent = w.tr;
+  document.getElementById('cRussian').textContent = w.ru;
+  document.getElementById('cCat').textContent = w.cat;
+  document.getElementById('card').classList.remove('flipped');
+
+  // Show learned badge
+  const front = document.querySelector('.card-front');
+  const existingBadge = front.querySelector('.card-learned-badge');
+  if (existingBadge) existingBadge.remove();
+  if (isLearned(w)) {
+    const badge = document.createElement('div');
+    badge.className = 'card-learned-badge';
+    badge.textContent = 'Выучено';
+    front.appendChild(badge);
+  }
+
+  document.getElementById('cardCounter').textContent = `${cardIndex + 1} / ${filtered.length}`;
+}
+
+function flipCard() {
+  document.getElementById('card').classList.toggle('flipped');
+}
+
+function nextCard() {
+  cardIndex = (cardIndex + 1) % filtered.length;
+  showCard();
+}
+
+function prevCard() {
+  cardIndex = (cardIndex - 1 + filtered.length) % filtered.length;
+  showCard();
+}
+
+function markWord(known) {
+  const w = filtered[cardIndex];
+  if (known) {
+    learnWord(w);
+  } else {
+    unlearnWord(w);
+  }
+  updateStats();
+  nextCard();
+}
+
+// ===== LIST =====
+function renderList() {
+  const list = document.getElementById('wordList');
+  list.innerHTML = '';
+  filtered.forEach((w, i) => {
+    const isL = isLearned(w);
+    const div = document.createElement('div');
+    div.className = 'word-item' + (isL ? ' learned' : '');
+    div.innerHTML = `
+      <span class="polish">${esc(w.pl)}</span>
+      <span class="translit">${esc(w.tr)}</span>
+      <span class="russian ${hideTranslation ? 'hidden' : ''}" data-i="${i}">${esc(w.ru)}</span>
+      <span class="cat">${esc(w.cat)}</span>
+      <span class="learned-check">${isL ? '✓' : ''}</span>
+    `;
+    div.onclick = () => {
+      const rus = div.querySelector('.russian');
+      rus.classList.toggle('hidden');
+    };
+    list.appendChild(div);
+  });
+}
+
+// ===== QUIZ =====
+function nextQuiz() {
+  if (filtered.length < 4) return;
+  const idx = Math.floor(Math.random() * filtered.length);
+  const correct = filtered[idx];
+  const opts = [correct];
+  while (opts.length < 4) {
+    const r = words[Math.floor(Math.random() * words.length)];
+    if (!opts.find(o => o.ru === r.ru)) opts.push(r);
+  }
+  for (let i = opts.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [opts[i], opts[j]] = [opts[j], opts[i]];
+  }
+
+  document.getElementById('qWord').textContent = correct.gr;
+  document.getElementById('qTranslit').textContent = correct.tr;
+  const optDiv = document.getElementById('qOptions');
+  optDiv.innerHTML = '';
+  opts.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = o.ru;
+    btn.onclick = () => {
+      quizScore.total++;
+      if (o.ru === correct.ru) {
+        quizScore.correct++;
+        btn.classList.add('correct');
+        // Mark as learned on correct quiz answer
+        learnWord(correct);
+        updateStats();
+      } else {
+        btn.classList.add('wrong');
+        optDiv.querySelectorAll('button').forEach(b => {
+          if (b.textContent === correct.ru) b.classList.add('correct');
+        });
+      }
+      document.getElementById('qScore').textContent = `Верно: ${quizScore.correct} / ${quizScore.total}`;
+      setTimeout(nextQuiz, 1200);
+    };
+    optDiv.appendChild(btn);
+  });
+}
+
+function startApp() {
+  filtered = [...words];
+  cardIndex = 0;
+
+  // Init categories
+  const cats = [...new Set(words.map(w => w.cat))].sort();
+  const catSelect = document.getElementById('catFilter');
+  catSelect.innerHTML = '<option value="all">Все темы</option>';
+  cats.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    catSelect.appendChild(opt);
+  });
+
+  // Load saved progress
+  try {
+    if (storageAvailable()) {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length <= 2000 && parsed.every(x => typeof x === 'string' && x.length < 100)) {
+          const validWords = new Set(words.map(w => w.pl));
+          learned = new Set(parsed.filter(w => validWords.has(w)));
+        }
+      }
+    }
+  } catch { learned = new Set(); }
+
+  showCard();
+  updateStats();
+  updateProgress();
+}
+
+init();
+</script>
+</body>
+</html>
