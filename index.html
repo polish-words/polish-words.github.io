@@ -191,6 +191,16 @@
     color: #fff;
   }
   .card-nav .know:hover { background: #15803d; }
+  .card-nav .dontknow {
+    background: #dc2626;
+    color: #fff;
+  }
+  .card-nav .dontknow:hover { background: #b91c1c; }
+  .streak-badge {
+    font-weight: 600;
+    color: #fff;
+  }
+  .streak-badge:empty { display: none; }
   .card-counter {
     text-align: center;
     font-size: 13px;
@@ -479,6 +489,7 @@
   <div class="progress-wrap">
     <div class="progress-info">
       <span id="progressText">Выучено: 0 / 963</span>
+      <span class="streak-badge" id="streakBadge"></span>
       <span><button class="reset-btn" onclick="resetProgress()">Сбросить</button></span>
     </div>
     <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
@@ -523,6 +534,7 @@
   <div class="card-nav">
     <button class="prev" onclick="prevCard()">Назад</button>
     <button class="next" onclick="nextCard()">Далее</button>
+    <button class="dontknow" onclick="markWord(false)">Не знаю</button>
     <button class="know" onclick="markWord(true)">Знаю</button>
   </div>
 </div>
@@ -688,10 +700,71 @@ function unlearnWord(w) {
   updateProgress();
 }
 
+// ===== STATS (per-word right/wrong for SRS weighting) =====
+const STATS_KEY = 'polish_a2_stats';
+let stats = {};
+
+function saveStats() {
+  if (!storageAvailable()) return;
+  try {
+    const data = JSON.stringify(stats);
+    if (data.length * 2 > 200 * 1024) return;
+    localStorage.setItem(STATS_KEY, data);
+  } catch (e) { console.warn('Polish A2: stats save failed', e); }
+}
+
+function bumpStat(w, key) {
+  const k = w.pl;
+  if (!stats[k]) stats[k] = { right: 0, wrong: 0 };
+  stats[k][key]++;
+  saveStats();
+}
+
+// ===== STREAK =====
+const STREAK_KEY = 'polish_a2_streak';
+let streakData = { current: 0, best: 0, lastActive: null };
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function dayDiff(a, b) {
+  return Math.round((new Date(b) - new Date(a)) / 86400000);
+}
+
+function saveStreak() {
+  if (!storageAvailable()) return;
+  try { localStorage.setItem(STREAK_KEY, JSON.stringify(streakData)); }
+  catch (e) { console.warn('Polish A2: streak save failed', e); }
+}
+
+function tickStreak() {
+  const today = todayStr();
+  if (streakData.lastActive === today) return;
+  if (streakData.lastActive && dayDiff(streakData.lastActive, today) === 1) {
+    streakData.current++;
+  } else {
+    streakData.current = 1;
+  }
+  if (streakData.current > streakData.best) streakData.best = streakData.current;
+  streakData.lastActive = today;
+  saveStreak();
+  updateStreakUI();
+}
+
+function updateStreakUI() {
+  const el = document.getElementById('streakBadge');
+  if (!el) return;
+  el.textContent = streakData.current > 0 ? `🔥 ${streakData.current}` : '';
+}
+
 function resetProgress() {
-  if (!confirm('Сбросить весь прогресс? Все выученные слова будут обнулены.')) return;
+  if (!confirm('Сбросить прогресс и статистику? Серия дней (🔥) сохранится.')) return;
   learned.clear();
+  stats = {};
   saveLearned();
+  saveStats();
   updateProgress();
   if (mode === 'cards') showCard();
   if (mode === 'list') renderList();
@@ -879,15 +952,29 @@ function prevCard() {
   showCard();
 }
 
+function pickWeightedIndex() {
+  if (!filtered.length) return 0;
+  const weights = filtered.map(w => {
+    const s = stats[w.pl] || { right: 0, wrong: 0 };
+    return 1 + 2 * Math.max(0, s.wrong - s.right);
+  });
+  const total = weights.reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < weights.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return i;
+  }
+  return filtered.length - 1;
+}
+
 function markWord(known) {
   const w = filtered[cardIndex];
-  if (known) {
-    learnWord(w);
-  } else {
-    unlearnWord(w);
-  }
+  bumpStat(w, known ? 'right' : 'wrong');
+  if (known) learnWord(w);
+  tickStreak();
+  cardIndex = pickWeightedIndex();
+  showCard();
   updateStats();
-  nextCard();
 }
 
 // ===== LIST =====
@@ -938,10 +1025,12 @@ function nextQuiz() {
     btn.textContent = o.ru;
     btn.onclick = () => {
       quizScore.total++;
-      if (o.ru === correct.ru) {
+      const isCorrect = o.ru === correct.ru;
+      bumpStat(correct, isCorrect ? 'right' : 'wrong');
+      tickStreak();
+      if (isCorrect) {
         quizScore.correct++;
         btn.classList.add('correct');
-        // Mark as learned on correct quiz answer
         learnWord(correct);
         updateStats();
       } else {
@@ -986,9 +1075,42 @@ function startApp() {
     }
   } catch { learned = new Set(); }
 
+  // Load stats
+  try {
+    if (storageAvailable()) {
+      const savedStats = localStorage.getItem(STATS_KEY);
+      if (savedStats) {
+        const parsed = JSON.parse(savedStats);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) stats = parsed;
+      }
+    }
+  } catch { stats = {}; }
+
+  // Load streak (visual reset if stale)
+  try {
+    if (storageAvailable()) {
+      const savedStreak = localStorage.getItem(STREAK_KEY);
+      if (savedStreak) {
+        const p = JSON.parse(savedStreak);
+        if (p && typeof p === 'object') {
+          streakData = {
+            current: parseInt(p.current) || 0,
+            best: parseInt(p.best) || 0,
+            lastActive: typeof p.lastActive === 'string' ? p.lastActive : null,
+          };
+          if (streakData.lastActive && dayDiff(streakData.lastActive, todayStr()) > 1) {
+            streakData.current = 0;
+            saveStreak();
+          }
+        }
+      }
+    }
+  } catch { streakData = { current: 0, best: 0, lastActive: null }; }
+
   showCard();
   updateStats();
   updateProgress();
+  updateStreakUI();
 }
 
 init();
