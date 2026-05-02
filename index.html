@@ -593,7 +593,7 @@ async function init() {
   }
 
   // Validate data
-  if (!Array.isArray(words) || words.length === 0 || !words[0].gr) {
+  if (!Array.isArray(words) || words.length === 0 || !words[0].pl) {
     document.body.innerHTML = '<div style="padding:40px;text-align:center;color:#c00;font-size:18px;">Неверный формат словаря.</div>';
     return;
   }
@@ -917,7 +917,7 @@ function nextQuiz() {
     [opts[i], opts[j]] = [opts[j], opts[i]];
   }
 
-  document.getElementById('qWord').textContent = correct.gr;
+  document.getElementById('qWord').textContent = correct.pl;
   document.getElementById('qTranslit').textContent = correct.tr;
   const optDiv = document.getElementById('qOptions');
   optDiv.innerHTML = '';
