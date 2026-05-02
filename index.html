@@ -25,8 +25,11 @@
     padding: 14px 24px 8px;
     text-align: center;
   }
+  .header { position: relative; }
   .header h1 { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
   .header p { font-size: 13px; opacity: 0.85; }
+  .header-info { position: absolute; top: 12px; right: 16px; background: rgba(255,255,255,0.2); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+  .header-info:hover { background: rgba(255,255,255,0.35); }
 
   .controls {
     display: flex;
@@ -463,6 +466,7 @@
 <body>
 
 <div class="header">
+  <button class="header-info" onclick="setMode('about')" title="О проекте">ⓘ</button>
   <h1>Polski A2</h1>
   <p>Польские слова уровня A2 — учи, повторяй, проверяй</p>
   <div class="progress-wrap">
